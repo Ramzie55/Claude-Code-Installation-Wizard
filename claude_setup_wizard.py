@@ -12,7 +12,7 @@ from datetime import datetime
 from typing import Tuple, Optional, List
 
 # Version info
-SCRIPT_VERSION = "2.0.2"
+SCRIPT_VERSION = "2.0.3"
 SCRIPT_NAME = "Claude Code Setup Wizard"
 
 class Colors:
@@ -122,7 +122,7 @@ class SetupWizard:
         """Display stylized banner"""
         self.clear_screen()
         print(f"\n{Colors.PRIMARY}  ┌──────────────────────────────────────────────────────────┐{Colors.RESET}")
-        print(f"{Colors.PRIMARY}  │{Colors.RESET}  {Colors.BOLD}{Colors.WHITE}CLAUDE CODE{Colors.RESET}  {Colors.GRAY}•{Colors.RESET}  {Colors.SECONDARY}INSTALLATION WIZARD{Colors.RESET}  {Colors.GRAY}•{Colors.RESET}  {Colors.DIM}v{SCRIPT_VERSION}{Colors.RESET}  {Colors.PRIMARY}│{Colors.RESET}")
+        print(f"{Colors.PRIMARY}  │{Colors.RESET}      {Colors.BOLD}{Colors.WHITE}CLAUDE CODE{Colors.RESET}  {Colors.GRAY}•{Colors.RESET}  {Colors.SECONDARY}INSTALLATION WIZARD{Colors.RESET}  {Colors.GRAY}•{Colors.RESET}  {Colors.DIM}v{SCRIPT_VERSION}{Colors.RESET}      {Colors.PRIMARY}│{Colors.RESET}")
         print(f"{Colors.PRIMARY}  └──────────────────────────────────────────────────────────┘{Colors.RESET}\n")
 
     def print_box(self, title: str, content: List[str] = None, color: str = None, style: str = 'single'):
@@ -143,7 +143,7 @@ class SetupWizard:
                 if len(line) > width - 5:
                     line = line[:width - 8] + '...'
                 padding = width - len(line) - 5
-                print(f"  {color}│{Colors.RESET} {line}{' ' * padding} {color}│{Colors.RESET}")
+                print(f"  {color}│{Colors.RESET} {line}{' ' * padding} {color} │{Colors.RESET}")
         # Bottom border
         print(f"  {color}└{'─' * (width - 2)}┘{Colors.RESET}\n")
 
@@ -152,21 +152,21 @@ class SetupWizard:
         indent_str = ' ' * indent
 
         if status == 'success':
-            print(f"{indent_str}{Colors.SUCCESS}{Icons.CHECK}{Colors.RESET} {text}")
+            print(f"{indent_str}{Colors.SUCCESS}{Icons.CHECK} {text}{Colors.RESET}")
             self.log(text, 'SUCCESS')
         elif status == 'error':
-            print(f"{indent_str}{Colors.ERROR}{Icons.CROSS}{Colors.RESET} {text}")
+            print(f"{indent_str}{Colors.ERROR}{Icons.CROSS} {text}{Colors.RESET}")
             self.log(text, 'ERROR')
             self.errors.append(text)
         elif status == 'warning':
-            print(f"{indent_str}{Colors.WARNING}{Icons.WARNING}{Colors.RESET} {text}")
+            print(f"{indent_str}{Colors.WARNING}{Icons.WARNING} {text}{Colors.RESET}")
             self.log(text, 'WARNING')
             self.warnings.append(text)
         elif status == 'info':
-            print(f"{indent_str}{Colors.INFO}{Icons.INFO}{Colors.RESET} {text}")
+            print(f"{indent_str}{Colors.INFO}{Icons.INFO} {text}{Colors.RESET}")
             self.log(text, 'INFO')
         elif status == 'loading':
-            print(f"{indent_str}{Colors.DIM}{Icons.GEAR}{Colors.RESET} {Colors.DIM}{text}{Colors.RESET}")
+            print(f"{indent_str}{Colors.CYAN}{Icons.GEAR} {text}{Colors.RESET}")
             self.log(text, 'INFO')
 
     def print_step(self, title: str, clear: bool = True):
@@ -187,15 +187,15 @@ class SetupWizard:
 
         # Calculate proper spacing for alignment
         step_text = f"STEP {self.current_step}/{self.total_steps} - {title}"
-        step_padding = width - len(step_text) - 2  # 2 for borders
+        step_padding = width - len(step_text) - 3  # 3 = 2 borders + 1 leading space
 
         bar_text = f"[{bar}] {percent_str}"
         # Account for ANSI color codes not taking visual space
-        bar_padding = width - 24 - len(percent_str)  # 24 = brackets + bar length + spaces
+        bar_padding = width - 26 - len(percent_str)  # 26 = 2 borders + 1 space + brackets + bar + space + percentage
 
         print(f"\n  {Colors.SECONDARY}┌{'─' * (width - 2)}┐{Colors.RESET}")
-        print(f"  {Colors.SECONDARY}│{Colors.RESET} {Colors.BOLD}{step_text}{Colors.RESET}{' ' * step_padding}{Colors.SECONDARY}│{Colors.RESET}")
-        print(f"  {Colors.SECONDARY}│{Colors.RESET} {Colors.PRIMARY}[{bar}]{Colors.RESET} {percent_str}{' ' * bar_padding}{Colors.SECONDARY}│{Colors.RESET}")
+        print(f"  {Colors.SECONDARY}│{Colors.RESET} {Colors.WHITE}{step_text}{Colors.RESET}{' ' * step_padding}{Colors.SECONDARY}│{Colors.RESET}")
+        print(f"  {Colors.SECONDARY}│{Colors.RESET} {Colors.PRIMARY}[{bar}]{Colors.RESET} {Colors.WHITE}{percent_str}{Colors.RESET}{' ' * bar_padding}{Colors.SECONDARY}│{Colors.RESET}")
         print(f"  {Colors.SECONDARY}└{'─' * (width - 2)}┘{Colors.RESET}\n")
 
         time.sleep(0.3)  # Brief pause after showing step header
@@ -504,12 +504,12 @@ class SetupWizard:
 
         # Next steps
         print(f"  {Colors.SECONDARY}┌{'─' * 58}┐{Colors.RESET}")
-        print(f"  {Colors.SECONDARY}│{Colors.RESET} {Colors.BOLD}NEXT STEPS:{Colors.RESET}{' ' * 45}{Colors.SECONDARY}│{Colors.RESET}")
+        print(f"  {Colors.SECONDARY}│{Colors.RESET} {Colors.BOLD}NEXT STEPS:{Colors.RESET}{' ' * 45}{Colors.SECONDARY} │{Colors.RESET}")
         print(f"  {Colors.SECONDARY}├{'─' * 58}┤{Colors.RESET}")
-        print(f"  {Colors.SECONDARY}│{Colors.RESET} 1. Close this window{' ' * 36}{Colors.SECONDARY}│{Colors.RESET}")
-        print(f"  {Colors.SECONDARY}│{Colors.RESET} 2. Open a {Colors.BOLD}NEW{Colors.RESET} Command Prompt or Terminal{' ' * 15}{Colors.SECONDARY}│{Colors.RESET}")
-        print(f"  {Colors.SECONDARY}│{Colors.RESET} 3. Run: {Colors.PRIMARY}claude --version{Colors.RESET}{' ' * 30}{Colors.SECONDARY}│{Colors.RESET}")
-        print(f"  {Colors.SECONDARY}│{Colors.RESET} 4. Run: {Colors.PRIMARY}claude{Colors.RESET} to start coding!{' ' * 24}{Colors.SECONDARY}│{Colors.RESET}")
+        print(f"  {Colors.SECONDARY}│{Colors.RESET} 1. Close this window{' ' * 36}{Colors.SECONDARY} │{Colors.RESET}")
+        print(f"  {Colors.SECONDARY}│{Colors.RESET} 2. Open a {Colors.BOLD}NEW{Colors.RESET} Command Prompt or Terminal{' ' * 15}{Colors.SECONDARY}  │{Colors.RESET}")
+        print(f"  {Colors.SECONDARY}│{Colors.RESET} 3. Run: {Colors.PRIMARY}claude --version{Colors.RESET}{' ' * 30}{Colors.SECONDARY}   │{Colors.RESET}")
+        print(f"  {Colors.SECONDARY}│{Colors.RESET} 4. Run: {Colors.PRIMARY}claude{Colors.RESET} to start coding!{' ' * 24}{Colors.SECONDARY}  │{Colors.RESET}")
         print(f"  {Colors.SECONDARY}└{'─' * 58}┘{Colors.RESET}")
 
         if self.warnings:
