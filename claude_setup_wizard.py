@@ -12,7 +12,7 @@ from datetime import datetime
 from typing import Tuple, Optional, List
 
 # Version info
-SCRIPT_VERSION = "2.0.1"
+SCRIPT_VERSION = "2.0.2"
 SCRIPT_NAME = "Claude Code Setup Wizard"
 
 class Colors:
@@ -42,19 +42,16 @@ class Colors:
     UNDERLINE = '\033[4m'
 
 class Icons:
-    """Enhanced text-based icons with animations"""
-    # Status icons
-    CHECK = '✓'
-    CROSS = '✗'
-    WARNING = '⚠'
-    INFO = 'ℹ'
-    ARROW = '→'
-    BULLET = '•'
-    STAR = '★'
-    GEAR = '⚙'
-    BOX = '□'
-    CHECKBOX = '☑'
-    PLAY = '▶'
+    """Enhanced CMD-compatible icons"""
+    # Status icons (keeping ones that work, replacing problematic ones)
+    CHECK = '√'           # Works well in CMD
+    CROSS = 'x'           # Simple and clear
+    WARNING = '!'         # Clear and visible
+    INFO = 'i'            # Simple replacement for ℹ
+    ARROW = '>'           # Simple and clear
+    BULLET = '•'          # Works well
+    STAR = '*'            # Universal
+    GEAR = '~'            # Simple replacement for ⚙
 
     # Claude-style loading animation (star sequence)
     LOADING = ['·', '✢', '✶', '✶', '✶', '*', '*', '✢', '·', '✻', '*']
@@ -63,6 +60,7 @@ class SetupWizard:
     """Main setup wizard class"""
 
     def __init__(self):
+        self.enable_ansi_colors()  # Enable colors in Windows CMD
         self.errors = []
         self.warnings = []
         self.npm_prefix = None
@@ -71,6 +69,23 @@ class SetupWizard:
         self.total_steps = 7
         self.current_step = 0
         self.log_file = self.setup_log()
+
+    def enable_ansi_colors(self):
+        """Enable ANSI color support in Windows CMD"""
+        if os.name == 'nt':
+            try:
+                import ctypes
+                kernel32 = ctypes.windll.kernel32
+                # Enable Virtual Terminal Processing
+                STD_OUTPUT_HANDLE = -11
+                ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004
+                handle = kernel32.GetStdHandle(STD_OUTPUT_HANDLE)
+                mode = ctypes.c_ulong()
+                kernel32.GetConsoleMode(handle, ctypes.byref(mode))
+                mode.value |= ENABLE_VIRTUAL_TERMINAL_PROCESSING
+                kernel32.SetConsoleMode(handle, mode)
+            except:
+                pass  # Fallback gracefully if it fails
 
     def setup_log(self):
         """Initialize logging"""
