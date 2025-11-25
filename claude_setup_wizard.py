@@ -12,25 +12,29 @@ from datetime import datetime
 from typing import Tuple, Optional, List
 
 # Version info
-SCRIPT_VERSION = "2.0.0"
+SCRIPT_VERSION = "2.0.1"
 SCRIPT_NAME = "Claude Code Setup Wizard"
 
 class Colors:
-    """Enhanced color palette using your brand colors"""
-    # Brand colors
-    PRIMARY = '\033[38;2;90;118;244m'      # #5A76F4 - Purple
-    SECONDARY = '\033[38;2;90;194;244m'    # #5AC2F4 - Light blue
-    # Status colors
-    SUCCESS = '\033[38;2;16;185;129m'      # Green
-    ERROR = '\033[38;2;239;68;68m'         # Red
-    WARNING = '\033[38;2;245;158;11m'      # Amber
-    INFO = '\033[38;2;59;130;246m'         # Blue
-    # UI colors
-    WHITE = '\033[97m'
-    GRAY = '\033[90m'
-    DIM = '\033[2m'
-    CYAN = '\033[96m'
-    MAGENTA = '\033[95m'
+    """Enhanced color palette with bright/bold styling"""
+    # Brand colors (bright + bold)
+    PRIMARY = '\033[1;38;5;105m'       # Bright Purple
+    SECONDARY = '\033[1;38;5;81m'      # Bright Light Blue
+
+    # Status colors (bright + bold)
+    SUCCESS = '\033[1;38;5;82m'        # Bright Green
+    ERROR = '\033[1;38;5;196m'         # Bright Red
+    WARNING = '\033[1;38;5;226m'       # Bright Yellow
+    INFO = '\033[1;38;5;39m'           # Bright Blue
+
+    # UI colors (bright + bold)
+    WHITE = '\033[1;97m'               # Bright White
+    GRAY = '\033[1;38;5;245m'          # Bright Gray
+    DIM = '\033[2;38;5;240m'           # Dim Gray
+    CYAN = '\033[1;38;5;51m'           # Bright Cyan
+    MAGENTA = '\033[1;38;5;171m'       # Soft Magenta
+    PINK = '\033[1;38;5;213m'          # Bright Pink
+
     # Effects
     RESET = '\033[0m'
     BOLD = '\033[1m'
@@ -38,7 +42,8 @@ class Colors:
     UNDERLINE = '\033[4m'
 
 class Icons:
-    """Text-based icons only"""
+    """Enhanced text-based icons with animations"""
+    # Status icons
     CHECK = '✓'
     CROSS = '✗'
     WARNING = '⚠'
@@ -50,7 +55,9 @@ class Icons:
     BOX = '□'
     CHECKBOX = '☑'
     PLAY = '▶'
-    LOADING = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
+
+    # Claude-style loading animation (star sequence)
+    LOADING = ['·', '✢', '✶', '✶', '✶', '*', '*', '✢', '·', '✻', '*']
 
 class SetupWizard:
     """Main setup wizard class"""
@@ -147,31 +154,50 @@ class SetupWizard:
             print(f"{indent_str}{Colors.DIM}{Icons.GEAR}{Colors.RESET} {Colors.DIM}{text}{Colors.RESET}")
             self.log(text, 'INFO')
 
-    def print_step(self, title: str):
+    def print_step(self, title: str, clear: bool = True):
         """Print step header with progress bar"""
+        # Clear screen and show banner for clean single-step display
+        if clear and self.current_step > 0:
+            time.sleep(1.5)  # Pause before clearing for readability
+            self.clear_screen()
+            self.print_banner()
+
         self.current_step += 1
         width = 60
         progress = self.current_step / self.total_steps
         filled = int(progress * 20)
         bar = '█' * filled + '░' * (20 - filled)
+        percentage = int(progress * 100)
+        percent_str = f"{percentage}%"
+
+        # Calculate proper spacing for alignment
+        step_text = f"STEP {self.current_step}/{self.total_steps} - {title}"
+        step_padding = width - len(step_text) - 2  # 2 for borders
+
+        bar_text = f"[{bar}] {percent_str}"
+        # Account for ANSI color codes not taking visual space
+        bar_padding = width - 24 - len(percent_str)  # 24 = brackets + bar length + spaces
 
         print(f"\n  {Colors.SECONDARY}┌{'─' * (width - 2)}┐{Colors.RESET}")
-        print(f"  {Colors.SECONDARY}│{Colors.RESET} {Colors.BOLD}STEP {self.current_step}/{self.total_steps}{Colors.RESET} - {title}{' ' * (width - len(title) - 15)}{Colors.SECONDARY}│{Colors.RESET}")
-        print(f"  {Colors.SECONDARY}│{Colors.RESET} [{Colors.PRIMARY}{bar}{Colors.RESET}] {int(progress * 100)}%{' ' * (width - 30)}{Colors.SECONDARY}│{Colors.RESET}")
+        print(f"  {Colors.SECONDARY}│{Colors.RESET} {Colors.BOLD}{step_text}{Colors.RESET}{' ' * step_padding}{Colors.SECONDARY}│{Colors.RESET}")
+        print(f"  {Colors.SECONDARY}│{Colors.RESET} {Colors.PRIMARY}[{bar}]{Colors.RESET} {percent_str}{' ' * bar_padding}{Colors.SECONDARY}│{Colors.RESET}")
         print(f"  {Colors.SECONDARY}└{'─' * (width - 2)}┘{Colors.RESET}\n")
 
-    def animated_loading(self, text: str, duration: float = 2.0):
-        """Show animated loading indicator"""
+        time.sleep(0.3)  # Brief pause after showing step header
+
+    def animated_loading(self, text: str, duration: float = 3.0):
+        """Show Claude-style animated loading indicator"""
         frames = Icons.LOADING
         start = time.time()
         idx = 0
 
         while time.time() - start < duration:
-            print(f"\r  {Colors.PRIMARY}{frames[idx]}{Colors.RESET} {text}...", end='', flush=True)
-            time.sleep(0.1)
+            print(f"\r  {Colors.SECONDARY}{frames[idx]}{Colors.RESET} {text}...", end='', flush=True)
+            time.sleep(0.15)  # Slower animation for readability
             idx = (idx + 1) % len(frames)
 
         print(f"\r  {Colors.SUCCESS}{Icons.CHECK}{Colors.RESET} {text}... Done!{' ' * 10}")
+        time.sleep(0.5)  # Pause after completion
 
     def check_admin(self) -> bool:
         """Check if running as administrator"""
