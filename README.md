@@ -2,6 +2,12 @@
 
 A professional Windows installer for Claude Code - Anthropic's official CLI tool.
 
+## Preview
+
+![Installation Complete](./images/installation-complete.png)
+
+*The installer features a beautiful terminal UI with progress tracking and comprehensive status reporting.*
+
 ## Features
 
 - Automated system requirements checking
